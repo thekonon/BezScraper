@@ -109,7 +109,8 @@ class NewDataHandle():
 
     1) create pandas dataframe from existing db
     2) diff db dataframe with new dataframe
-    3) save differences
+    3) return new data / removed data
+    4) save new table
 
     """
     def __init__(self, new_data_dataframe) -> None:
@@ -118,38 +119,42 @@ class NewDataHandle():
         self._rename_columns()
         self.load_db_data()
         self.diff_data()
-        print('Newly found data: ')
+        print("Nalezeny nové nabídky bydlení: ")
         print(self.new_data)
-        print('Missing data: ')
+        print("Tyto nabídky byly staženy: ")
         print(self.missing_data)
-        self.my_db_handle.close_db()
+        #self.save_new_data()
+        self.db_handler.close_db()
     def load_db_data(self):
-        # Create db handle
-        self.my_db_handle = dbHandler()
         # Crate df from db
-        self.db_dataframe = self.my_db_handle.get_data()[:-1] #Removes time data
+        self.db_dataframe = self.db_handler.get_data().drop('index',axis=1) #Removes time data
     def diff_data(self):
-        merged_df = self.db_dataframe.merge(
-            self.new_data_dataframe, indicator=True, how='outer')
+        """Find differences between dataframes
+        - new data are saved to new_data
+        - withdrawn offeres are in missing_data
+        """
+        #Find differences between dataframes
+        merged_df = self.db_dataframe.merge(self.new_data_dataframe, indicator=True, how='outer')
         diff_rows = merged_df[merged_df['_merge'] != 'both']
-
-        if diff_rows.empty:
-            print("No differences found between the DataFrames.")
-        else:
-            print("Differences found between the DataFrames:")
-            
+        
         self.new_data = diff_rows[diff_rows['_merge'] == 'right_only']
         self.missing_data = diff_rows[diff_rows['_merge'] == 'left_only']
         
+        #Find which data are new and which are missing
+        #self.new_data = self.db_dataframe[~diff_rows.isin(self.new_data_dataframe)].dropna()
+        #self.missing_data = self.new_data_dataframe[~diff_rows.isin(self.db_dataframe)].dropna()
+    def save_new_data(self):
+        self.db_handler.save_dataframe(self.new_data_dataframe)
+        
     def _rename_columns(self):
-        self.new_data_dataframe['data'] = 'a'
+        self.new_data_dataframe['D'] = 'a'
         self.new_data_dataframe.columns = [item[0] for item in self.db_handler.columns]
     
     
 if __name__ == '__main__':
     # # Create excel reade obj
-    excel_reader = ExcelReader('data/Bezrealitky2023-05-16-12-50-18.xlsx')
-    data_frame = excel_reader.get_dataframe()
+    excel_reader = ExcelReader('data/'+'Bezrealitky2023-05-21-18-47-39'+'.xlsx')
+    data_frame = excel_reader.get_dataframe().drop('Datum', axis=1)
     new_data_handle = NewDataHandle(data_frame)
     # Create db handle
     # my_db_handle = dbHandler()

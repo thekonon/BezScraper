@@ -37,8 +37,9 @@ class dbHandler():
         -adding data into database
 
     Methods:
-        -commit_prepared_data
-        -data_frame_to_data
+        -1) data_frame_to_data(data_frame)
+        -2) commit_prepared_data
+        
         -prepare_data
     """
 
@@ -126,6 +127,23 @@ class dbHandler():
 
     def get_data(self):
         return read_sql_query(f"Select * FROM {self.db_table_name}", self.conn)
+    
+    def save_dataframe(self, data_frame: DataFrame):
+        """OVERWRITES EXISTING DB TABLE WITH DATAFRAME
+
+        Args:
+            data_frame (DataFrame): _description_
+        """
+        #removes data
+        self._drop_table()
+        data_frame.to_sql(name=self.db_table_name, con=self.conn)
+    
+    def _drop_table(self):
+        """DELETES TABLE IN DB
+        """
+        self.conn.execute(f"DROP TABLE {self.db_table_name}")
+        self.conn.commit()
+        print("Table successfuly removed")
     
     def close_db(self):
         """Closes database

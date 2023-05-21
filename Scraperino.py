@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
     #Save data to excel
     writer = ScreadDataWriter(br.scraped_data)
-    writer.saveData('results')
+    writer.saveData('Bezrealitky')
     
     #Save data to db:
     my_db_handle = dbHandler()

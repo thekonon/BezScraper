@@ -128,9 +128,6 @@ class BezrealitkyScraper(MyScraper):
             self.scraped_data.czech_part.append(author_city_czech_part[2])
             self.scraped_data.price.append(article.find_element(By.XPATH, self._price_xpath).text)
             self.scraped_data.link.append(article.find_element(By.XPATH, self._link_xpath).get_attribute('href'))
-            now = datetime.now()
-            dt_string = now.strftime("%Y-%m-%d-%H-%M-%S")
-            self.scraped_data.date.append(dt_string)
             try:
                 self.scraped_data.extra_price.append(article.find_element(By.XPATH, self._extra_price_xpath).text)
             except NoSuchElementException:
@@ -152,17 +149,6 @@ if __name__ == '__main__':
     br.driver.close()
     print('Driver is closed now')
 
-    er = ExcelReader('results.xlsx')
-    df = er.get_dataframe()
-
     #Save data to excel
     writer = ScreadDataWriter(br.scraped_data)
-    writer.saveData('Bezrealitky')
-    
-    #Save data to db:
-    my_db_handle = dbHandler()
-    df2 = writer.scraped_data_dataframe
-    df2.columns = [item[0] for item in my_db_handle.columns]
-    my_db_handle.data_frame_to_data(df2)
-    my_db_handle.commit_prepared_data()
-    my_db_handle.close_db()
+    writer.saveData('data/Bezrealitky')

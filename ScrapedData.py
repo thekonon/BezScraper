@@ -21,18 +21,24 @@ class ScrapedDataHolder():
         self.price = []
         self.extra_price = []
         self.link = []
-        self.date = []
 
     def getDictionary(self):
-        dictionary = {'Adresa: ': self.address,
-                      'Cena: ': self.price,
-                      'Energie': self.extra_price,
-                      'Počet pokojů': self.flat_size_rooms,
-                      'Velikost bytu': self.flat_size_m,
-                      'Link': self.link,
-                      'Datum': self.date}
+        # dictionary = {'Adresa: ': self.address,
+        #               'Cena: ': self.price,
+        #               'Energie': self.extra_price,
+        #               'Počet pokojů': self.flat_size_rooms,
+        #               'Velikost bytu': self.flat_size_m,
+        #               'Link': self.link,
+        #               'Datum': self.date}
+        dictionary = {'address: ': self.address,
+                      'price: ': self.price,
+                      'energy': self.extra_price,
+                      'rooms': self.flat_size_rooms,
+                      'size': self.flat_size_m,
+                      'link': self.link}
         return dictionary
-
+    def get_dataframe(self):
+        return pd.DataFrame(self.getDictionary())
 
 class ScreadDataWriter():
     """ScrapedDataWriter
@@ -48,13 +54,11 @@ class ScreadDataWriter():
             scraped_data (ScrapedDataHolder): data stored in ScrapedDataHolder
         """
         self.scraped_data = scraped_data
-        self.scraped_data_dataframe = pd.DataFrame(
-            self.scraped_data.getDictionary())
 
     def saveData(self, file_name):
         now = datetime.now()
         dt_string = now.strftime("%Y-%m-%d-%H-%M-%S")
-        self.scraped_data_dataframe.to_excel(file_name+dt_string+'.xlsx')
+        self.scraped_data.get_dataframe().to_excel(file_name+dt_string+'.xlsx')
 
 
 class ExcelReader():
@@ -119,15 +123,11 @@ class NewDataHandle():
         self._rename_columns()
         self.load_db_data()
         self.diff_data()
-        print("Nalezeny nové nabídky bydlení: ")
-        print(self.new_data)
-        print("Tyto nabídky byly staženy: ")
-        print(self.missing_data)
-        #self.save_new_data()
+        self.save_new_data()
         self.db_handler.close_db()
     def load_db_data(self):
         # Crate df from db
-        self.db_dataframe = self.db_handler.get_data().drop('index',axis=1) #Removes time data
+        self.db_dataframe = self.db_handler.get_data().drop('index',axis=1) #index
     def diff_data(self):
         """Find differences between dataframes
         - new data are saved to new_data
@@ -139,10 +139,6 @@ class NewDataHandle():
         
         self.new_data = diff_rows[diff_rows['_merge'] == 'right_only']
         self.missing_data = diff_rows[diff_rows['_merge'] == 'left_only']
-        
-        #Find which data are new and which are missing
-        #self.new_data = self.db_dataframe[~diff_rows.isin(self.new_data_dataframe)].dropna()
-        #self.missing_data = self.new_data_dataframe[~diff_rows.isin(self.db_dataframe)].dropna()
     def save_new_data(self):
         self.db_handler.save_dataframe(self.new_data_dataframe)
         

@@ -1,34 +1,7 @@
 import sqlite3 as sq3
 from pandas import DataFrame, read_sql_query
-#from ScrapedData import ExcelReader
 import pathlib
 import os
-
-# db_name = 'results.db'
-# os.remove(db_name)
-# db_dir_path = str(pathlib.Path('results.db').parent.resolve())
-# db_file_path = db_dir_path+"\\"+db_name
-# con = sq3.connect(db_name)
-# cur = con.execute('PRAGMA table_info(results)')
-# #Check if table is emtpty, if is, crete new table:
-# if not cur.fetchall():
-#     print('Creating new table: ')
-#     con.execute('CREATE TABLE results(address TEXT, price TEXT, energy TEXT, rooms TEXT, size TEXT, link TEXT, date TEXT)')
-#     con.commit()
-# #Add data info database
-# data = [('a','a','a','a','a','a', '2023:02:12:43:34'),
-#         ('a','a','a','a','a','a', '2023:02:17:43:34'),
-#         ('a','a','a','a','a','a', '2023:02:14:43:34'),
-#         ('a','a','a','a','a','a', '2023:02:16:43:34')]
-# #Commit changes
-# cur = con.executemany('INSERT INTO results VALUES(?, ?, ?, ?, ?, ?, ?)', data)
-# con.commit()
-
-# for row in cur.execute('SELECT * FROM results'):
-#     print(row)
-
-# con.close()
-
 
 class dbHandler():
     """_summary_
@@ -102,10 +75,6 @@ class dbHandler():
             data (dictionary): dictionary of data, if column is not included, NULL is set
             E.G.: data = {'address': 'Plzen 12645', 'price': '1687'}
         """
-        # data = {'address': 'Plzen 12645',
-        #              'price': '1687',
-        #              'rooms': '3'}
-
         self.prepared_data.append(
             tuple(data.get(column[0], 'NULL') for column in self.columns))
 
@@ -156,24 +125,4 @@ class dbHandler():
 
 
 if __name__ == '__main__':
-    # Removes old db
-    db_name = 'results.db'
-    # os.remove(db_name)
-
-    # Create db handle
-    my_db_handle = dbHandler()
-
-    # Create excel reade obj
-    #excel_reader = ExcelReader('data/Bezrealitky2023-05-16-12-50-18.xlsx')
-    #data_frame = excel_reader.get_dataframe()
-
-    # To be able succesfully match data - it is required to rename
-    # Czech column names - located in excel into english one used in db
-    # data_frame.columns = [item[0] for item in my_db_handle.columns]
-
-    # # Prepare data to be send
-    # my_db_handle.data_frame_to_data(data_frame)
-    # # Send and save data into db
-    # my_db_handle.commit_prepared_data()
-    # Close db relation
-    my_db_handle.close_db()
+    pass

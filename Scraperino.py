@@ -15,7 +15,7 @@ class MyScraper:
         #Initialize General webscraper, main properties are:
         # - web_page_name   - Name of scraped page - just for info, not requiierd
         # - web_page_link   - Contains link to scraped page
-        # - browser         - Used browser Firefox / Chrome
+        # - browser         - Used browser Firefox
         # - IS_SILENT       - ONLY FOR FIREFOX, mode with invisible window
         
         #Default values
